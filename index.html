@@ -40,6 +40,284 @@
     --dur-base:.3s;
     --dur-slow:.55s;
   }
+  /* ===== Float Stack: Scroll-to-top + AI Chat ===== */
+  .float-stack{
+    position:fixed;
+    right:20px;
+    bottom:24px;
+    z-index:1200;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:14px;
+  }
+  .scroll-top-btn{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    border:1px solid var(--line-dark);
+    background:var(--navy);
+    color:var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(8px) scale(.9);
+    pointer-events:none;
+    box-shadow:0 6px 16px -6px rgba(10,25,48,.45);
+    transition:opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  }
+  .scroll-top-btn.is-visible{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+  .scroll-top-btn.is-chat-open{
+    opacity:0;
+    transform:translateY(8px) scale(.9);
+    pointer-events:none;
+  }
+  .scroll-top-btn:hover{background:var(--saffron);color:var(--navy-deep);}
+  .scroll-top-btn:focus-visible{outline:2px solid var(--saffron);outline-offset:3px;}
+
+  .chat-launcher{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    border:1px solid var(--line-dark);
+    background:var(--saffron);
+    color:var(--navy-deep);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:19px;
+    cursor:pointer;
+    position:relative;
+    flex-shrink:0;
+    box-shadow:0 6px 16px -6px rgba(224,118,0,.55);
+    transition:background var(--dur-fast) var(--ease-standard);
+  }
+  .chat-launcher:hover{background:var(--saffron-dark);}
+  .chat-launcher:focus-visible{outline:2px solid var(--navy);outline-offset:3px;}
+  .chat-launcher .fa-xmark{display:none;}
+  .chat-launcher.is-open .fa-comment-dots{display:none;}
+  .chat-launcher.is-open .fa-xmark{display:inline-block;}
+  .chat-launcher-badge{
+    position:absolute;
+    top:-2px;
+    right:-2px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:#D64545;
+    border:2px solid var(--cream);
+    display:block;
+  }
+  .chat-launcher.is-open .chat-launcher-badge{display:none;}
+
+  /* ===== Chat window ===== */
+  /* bottom offset = float-stack bottom (24px) + chat-launcher height (46px) + gap (14px) + clearance (12px) */
+  .chat-window{
+    position:fixed;
+    right:20px;
+    bottom:96px;
+    z-index:1199;
+    width:360px;
+    max-width:calc(100vw - 32px);
+    height:520px;
+    max-height:calc(100vh - 140px);
+    background:var(--white);
+    border-radius:var(--radius-md);
+    border:1px solid var(--line-dark);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 20px 48px -16px rgba(10,25,48,.35);
+    opacity:0;
+    transform:translateY(12px);
+    pointer-events:none;
+    transition:opacity var(--dur-base) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+  }
+  .chat-window.is-open{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+  .chat-head{
+    background:var(--navy);
+    color:var(--cream);
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .chat-head .chat-avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:var(--saffron);
+    color:var(--navy-deep);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .chat-head-info{flex:1;min-width:0;}
+  .chat-head-info strong{display:block;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:.2px;}
+  .chat-head-info span{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--cream-soft);opacity:.85;}
+  .chat-status-dot{width:7px;height:7px;border-radius:50%;background:#2ECC63;display:inline-block;}
+  .chat-head-actions{display:flex;gap:4px;}
+  .chat-head-actions button{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:none;
+    background:rgba(255,255,255,.08);
+    color:var(--cream);
+    cursor:pointer;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background var(--dur-fast) var(--ease-standard);
+  }
+  .chat-head-actions button:hover{background:rgba(255,255,255,.2);}
+  .chat-head-actions button:focus-visible{outline:2px solid var(--saffron);outline-offset:2px;}
+
+  .chat-body{
+    flex:1;
+    overflow-y:auto;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:var(--cream-soft);
+  }
+  .chat-msg{
+    max-width:84%;
+    padding:10px 13px;
+    border-radius:var(--radius-md);
+    font-size:13.5px;
+    line-height:1.5;
+    animation:fadeUp var(--dur-base) var(--ease-out-soft) both;
+  }
+  .chat-msg.bot{
+    align-self:flex-start;
+    background:var(--white);
+    border:1px solid var(--line);
+    color:var(--charcoal);
+    border-bottom-left-radius:2px;
+  }
+  .chat-msg.user{
+    align-self:flex-end;
+    background:var(--navy);
+    color:var(--cream);
+    border-bottom-right-radius:2px;
+  }
+  .chat-msg a{color:var(--saffron-dark);}
+  .chat-msg.bot a{color:var(--saffron-dark);font-weight:600;}
+  .chat-typing{
+    align-self:flex-start;
+    display:flex;
+    gap:4px;
+    padding:11px 14px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    border-bottom-left-radius:2px;
+  }
+  .chat-typing span{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--navy);
+    opacity:.45;
+    animation:chatTypingBlink 1.1s infinite ease-in-out;
+  }
+  .chat-typing span:nth-child(2){animation-delay:.15s;}
+  .chat-typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes chatTypingBlink{
+    0%,60%,100%{transform:translateY(0);opacity:.35;}
+    30%{transform:translateY(-3px);opacity:.9;}
+  }
+
+  .chat-quick{
+    padding:0 16px 12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    background:var(--cream-soft);
+    border-top:1px dashed var(--line);
+    padding-top:10px;
+  }
+  .chat-quick button{
+    border:1px solid var(--line-dark);
+    background:var(--white);
+    color:var(--navy);
+    font-size:11.5px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  }
+  .chat-quick button:hover{background:var(--navy);color:var(--cream);}
+
+  .chat-input-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid var(--line);
+    background:var(--white);
+  }
+  .chat-input-row input{
+    flex:1;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:10px 14px;
+    font-size:13.5px;
+    font-family:inherit;
+    color:var(--charcoal);
+    background:var(--cream);
+  }
+  .chat-input-row input:focus{outline:none;border-color:var(--saffron);box-shadow:0 0 0 3px rgba(255,133,0,.18);}
+  .chat-send-btn{
+    width:38px;
+    height:38px;
+    flex-shrink:0;
+    border-radius:50%;
+    border:none;
+    background:var(--saffron);
+    color:var(--navy-deep);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    transition:background var(--dur-fast) var(--ease-standard);
+  }
+  .chat-send-btn:hover{background:var(--saffron-dark);color:var(--cream);}
+  .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  @media (max-width:480px){
+    .float-stack{right:12px;bottom:16px;}
+    /* bottom offset = float-stack bottom (16px) + chat-launcher height (46px) + gap (14px) + clearance (12px) */
+    .chat-window{
+      right:12px;
+      left:12px;
+      width:auto;
+      bottom:88px;
+      height:66vh;
+    }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .scroll-top-btn,.chat-window,.chat-launcher,.chat-msg,.chat-typing span{transition:none;animation:none;}
+  }
+
   *,*::before,*::after{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
@@ -125,6 +403,14 @@
   .section-head{max-width:640px;margin-bottom:var(--space-lg);}
   .section-head p{color:#4B525C;font-size:1.03rem;margin-bottom:0;}
   :focus-visible{outline:3px solid var(--saffron);outline-offset:2px;}
+  /* Round elements keep a round focus ring instead of a square one */
+  .scroll-top-btn:focus-visible,
+  .chat-launcher:focus-visible,
+  .chat-head-actions button:focus-visible,
+  .chat-send-btn:focus-visible,
+  .chat-head .chat-avatar:focus-visible{
+    outline-offset:3px;
+  }
 
   /* Buttons */
   .btn{
@@ -307,12 +593,19 @@
     letter-spacing:.3px;text-transform:uppercase;
   }
   .search-field select{
-    width:100%;height:46px;padding:0 12px;border-radius:var(--radius-sm);border:1px solid #2A4A73;
-    background:var(--white);color:var(--charcoal);font-family:'Inter',sans-serif;font-size:.88rem;
+    -webkit-appearance:none;-moz-appearance:none;appearance:none;
+    width:100%;height:46px;padding:0 36px 0 12px;border-radius:var(--radius-sm);border:1px solid #2A4A73;
+    background:var(--white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" fill="none" stroke="%23242A32" stroke-width="1.6" stroke-linecap="square"/></svg>') no-repeat right 12px center;
+    color:var(--charcoal);font-family:'Inter',sans-serif;font-size:.88rem;
     transition:border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+    outline:none;
   }
   .search-field select:hover{border-color:var(--saffron);}
-  .search-field select:focus-visible{outline:3px solid var(--saffron);}
+  .search-field select:focus-visible{
+    border-radius:0;
+    border-color:var(--saffron);
+    box-shadow:0 0 0 3px var(--white), 0 0 0 6px var(--saffron);
+  }
   .search-submit-row{margin-top:22px;}
   @media (max-width:980px){
     .search-grid{grid-template-columns:1fr 1fr;}
@@ -328,11 +621,20 @@
   .sort-field{display:flex;align-items:center;gap:11px;}
   .sort-field label{font-size:.85rem;font-weight:600;color:var(--navy);}
   .sort-field select{
-    height:42px;padding:0 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white);
+    -webkit-appearance:none;-moz-appearance:none;appearance:none;
+    height:42px;padding:0 32px 0 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white);
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" fill="none" stroke="%23242A32" stroke-width="1.6" stroke-linecap="square"/></svg>');
+    background-repeat:no-repeat;background-position:right 12px center;
     font-family:'Inter',sans-serif;font-size:.85rem;color:var(--charcoal);
-    transition:border-color var(--dur-fast) var(--ease-standard);
+    transition:border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+    outline:none;
   }
   .sort-field select:hover{border-color:var(--saffron-dark);}
+  .sort-field select:focus-visible{
+    border-radius:0;
+    border-color:var(--saffron-dark);
+    box-shadow:0 0 0 3px var(--white), 0 0 0 6px var(--saffron-dark);
+  }
   .result-count{font-size:.88rem;color:#596069;}
   .car-grid{
     display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
@@ -608,24 +910,29 @@
     max-width:360px;width:calc(100% - 48px);
   }
   .toast{
-    background:var(--white);border-left:4px solid var(--saffron);border-radius:var(--radius-sm);
-    box-shadow:0 6px 20px rgba(10,25,48,.18);padding:16px 18px;display:flex;gap:13px;align-items:flex-start;
+    background:var(--white);border:1px solid var(--line);border-left:4px solid var(--saffron);border-radius:var(--radius-sm);
+    box-shadow:0 10px 28px -8px rgba(10,25,48,.24);padding:16px 18px;display:flex;gap:13px;align-items:flex-start;
     animation:toastIn .2s ease;
   }
   .toast.toast-error{border-left-color:#D64545;}
   .toast.toast-success{border-left-color:#1DB955;}
   @keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
-  .toast i.toast-icon{font-size:1.1rem;color:var(--saffron-dark);margin-top:1px;}
+  .toast i.toast-icon{font-size:1.1rem;color:var(--saffron-dark);margin-top:1px;flex-shrink:0;}
   .toast.toast-error i.toast-icon{color:#D64545;}
   .toast.toast-success i.toast-icon{color:#1DB955;}
+  .toast-content{min-width:0;}
   .toast-content strong{display:block;font-size:.9rem;color:var(--navy);margin-bottom:3px;}
   .toast-content span{font-size:.82rem;color:#565D66;line-height:1.5;}
   .toast-close{
     background:none;border:none;color:#9AA0A8;cursor:pointer;font-size:.9rem;margin-left:auto;flex:none;padding:2px;
+    border-radius:var(--radius-sm);
   }
   .toast-close:hover{color:var(--charcoal);}
+  .toast-close:focus-visible{outline:2px solid var(--saffron);outline-offset:2px;}
   @media (max-width:560px){
+    /* Keep clear of the float-stack (scroll-top + chat launcher) in the bottom-right corner */
     .toast-stack{top:auto;bottom:16px;right:16px;left:16px;max-width:none;width:auto;}
+    .toast-stack{padding-right:62px;}
   }
 </style>
 </head>
@@ -1133,6 +1440,45 @@
     </div>
   </div>
 </div>
+
+<!-- FLOATING SCROLL-TO-TOP + AI CHAT SUPPORT -->
+<div class="float-stack">
+  <button type="button" class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll back to top">
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+  </button>
+  <button type="button" class="chat-launcher" id="chatLauncher" aria-expanded="false" aria-controls="chatWindow" aria-label="Open chat support">
+    <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    <span class="chat-launcher-badge" aria-hidden="true"></span>
+  </button>
+</div>
+
+<div class="chat-window" id="chatWindow" role="dialog" aria-label="Chat support" aria-hidden="true">
+  <div class="chat-head">
+    <div class="chat-avatar"><i class="fa-solid fa-car" aria-hidden="true"></i></div>
+    <div class="chat-head-info">
+      <strong>Shiv Shankar Assistant</strong>
+      <span><span class="chat-status-dot" aria-hidden="true"></span> Online &bull; Typically replies instantly</span>
+    </div>
+    <div class="chat-head-actions">
+      <button type="button" id="chatClearBtn" title="Clear chat" aria-label="Clear chat">
+        <i class="fa-solid fa-broom" aria-hidden="true"></i>
+      </button>
+      <button type="button" id="chatCloseBtn" title="Close chat" aria-label="Close chat">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-quick" id="chatQuick"></div>
+  <form class="chat-input-row" id="chatForm">
+    <input type="text" id="chatInput" placeholder="Type your question..." autocomplete="off" aria-label="Type your question">
+    <button type="submit" class="chat-send-btn" id="chatSendBtn" aria-label="Send message">
+      <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+    </button>
+  </form>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -1585,6 +1931,205 @@
   }
   window.addEventListener("scroll", updateHeaderShadow, {passive:true});
   updateHeaderShadow();
+
+  /* ============ SCROLL TO TOP + AI CHATBOT ============ */
+  var scrollTopBtn = document.getElementById("scrollTopBtn");
+  function updateScrollTopBtn(){
+    if(window.scrollY > 420){ scrollTopBtn.classList.add("is-visible"); }
+    else { scrollTopBtn.classList.remove("is-visible"); }
+  }
+  window.addEventListener("scroll", updateScrollTopBtn, {passive:true});
+  updateScrollTopBtn();
+  scrollTopBtn.addEventListener("click", function(){
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  (function initChatbot(){
+    var launcher = document.getElementById("chatLauncher");
+    var chatWindow = document.getElementById("chatWindow");
+    var closeBtn = document.getElementById("chatCloseBtn");
+    var clearBtn = document.getElementById("chatClearBtn");
+    var body = document.getElementById("chatBody");
+    var quick = document.getElementById("chatQuick");
+    var form = document.getElementById("chatForm");
+    var input = document.getElementById("chatInput");
+    var sendBtn = document.getElementById("chatSendBtn");
+
+    var WELCOME = [
+      {from:"bot", text:"Namaste! 🙏 I'm the Shiv Shankar Car Bazar assistant. Ask me about inventory, pricing, test drives, selling your car, documents or our location. happy to help!"}
+    ];
+
+    var QUICK_PROMPTS = [
+      "What cars do you have?",
+      "How do I sell my car?",
+      "What documents are needed?",
+      "What are your timings?",
+      "Do you offer test drives?",
+      "Where are you located?"
+    ];
+
+    var FAQ = [
+      {
+        kw: ["car", "cars", "inventory", "stock", "available", "vehicle", "vehicles", "models"],
+        a: "We currently list hatchbacks, sedans and SUVs from Maruti Suzuki, Hyundai, Honda, Toyota, Mahindra and Tata. all inspected on our multi point checklist. Check the <a href=\"#inventory\">Inventory</a> section above to filter by brand, budget, fuel type and body style."
+      },
+      {
+        kw: ["price", "pricing", "cost", "budget", "cheap", "afford", "emi", "finance", "loan"],
+        a: "Prices vary by model, year and condition. you'll see exact figures on each car's card in our <a href=\"#inventory\">Inventory</a>. Use the budget filter to narrow results, and message us on WhatsApp for current EMI and financing options."
+      },
+      {
+        kw: ["sell", "selling", "sold", "valuation", "value my car", "exchange"],
+        a: "Selling is simple: share your car's details on WhatsApp, we schedule a free inspection, give you a fair quote, and complete paperwork + payment the same day. See the <a href=\"#sell\">Sell Your Car</a> section for the full step by step."
+      },
+      {
+        kw: ["document", "documents", "paperwork", "rc", "papers", "transfer"],
+        a: "You'll typically need the RC (Registration Certificate), valid insurance, PUC certificate, ID proof and address proof. Our team guides you through RC transfer and all paperwork so the process stays hassle free."
+      },
+      {
+        kw: ["timing", "timings", "hours", "open", "close", "closed", "working hours", "visit"],
+        a: "We're open all days of the week during standard business hours. For exact timings before you visit, do confirm via WhatsApp or the number in our <a href=\"#contact\">Contact</a> section. happy to fix an appointment too."
+      },
+      {
+        kw: ["test drive", "testdrive", "drive", "trial"],
+        a: "Yes, test drives are available on most vehicles in stock! Pick a car from <a href=\"#inventory\">Inventory</a> and tap \"Enquire on WhatsApp\" to book a convenient slot."
+      },
+      {
+        kw: ["location", "address", "located", "where", "map", "directions"],
+        a: "You'll find our showroom address and an embedded map in the <a href=\"#contact\">Contact</a> section at the bottom of the page. Tap the WhatsApp button there for live directions too."
+      },
+      {
+        kw: ["contact", "phone", "call", "number", "whatsapp", "reach"],
+        a: "The fastest way to reach us is WhatsApp. just tap any \"Enquire on WhatsApp\" button on the page. Our phone number and address are also listed in the <a href=\"#contact\">Contact</a> section."
+      },
+      {
+        kw: ["warranty", "guarantee", "return", "refund"],
+        a: "Every car goes through a thorough inspection before listing. For specific warranty or return terms on a particular vehicle, please ask our team directly via WhatsApp. terms can vary by model."
+      },
+      {
+        kw: ["hi", "hello", "hey", "namaste"],
+        a: "Hello there! 👋 Ask me anything about our cars, pricing, selling your vehicle, documents or visiting the showroom."
+      },
+      {
+        kw: ["thank", "thanks", "thank you"],
+        a: "You're most welcome! Is there anything else I can help you find? 😊"
+      }
+    ];
+
+    var FALLBACK = "That's a great question for our team. I don't have exact details on that here, but you can get a quick answer by tapping any \"Enquire on WhatsApp\" button, or check the <a href=\"#faq\">FAQ</a> section above for more.";
+
+    function escapeHTML(str){
+      var div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addMessage(from, text, animate){
+      var msg = document.createElement("div");
+      msg.className = "chat-msg " + from;
+      msg.innerHTML = (from === "bot") ? text : escapeHTML(text);
+      if(animate === false){ msg.style.animation = "none"; }
+      body.appendChild(msg);
+      body.scrollTop = body.scrollHeight;
+      return msg;
+    }
+
+    function showTyping(){
+      var typing = document.createElement("div");
+      typing.className = "chat-typing";
+      typing.id = "chatTypingIndicator";
+      typing.innerHTML = "<span></span><span></span><span></span>";
+      body.appendChild(typing);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function hideTyping(){
+      var typing = document.getElementById("chatTypingIndicator");
+      if(typing){ typing.remove(); }
+    }
+
+    function findAnswer(question){
+      var q = question.toLowerCase();
+      for(var i = 0; i < FAQ.length; i++){
+        var entry = FAQ[i];
+        for(var j = 0; j < entry.kw.length; j++){
+          if(q.indexOf(entry.kw[j]) !== -1){ return entry.a; }
+        }
+      }
+      return FALLBACK;
+    }
+
+    function botReply(question){
+      showTyping();
+      sendBtn.disabled = true;
+      var delay = 500 + Math.random() * 500;
+      setTimeout(function(){
+        hideTyping();
+        addMessage("bot", findAnswer(question));
+        sendBtn.disabled = false;
+      }, delay);
+    }
+
+    function renderQuickPrompts(){
+      quick.innerHTML = "";
+      QUICK_PROMPTS.forEach(function(prompt){
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = prompt;
+        btn.addEventListener("click", function(){
+          addMessage("user", prompt);
+          botReply(prompt);
+        });
+        quick.appendChild(btn);
+      });
+    }
+
+    function resetChat(){
+      body.innerHTML = "";
+      WELCOME.forEach(function(m){ addMessage(m.from, m.text, false); });
+      renderQuickPrompts();
+    }
+
+    function openChat(){
+      chatWindow.classList.add("is-open");
+      launcher.classList.add("is-open");
+      launcher.setAttribute("aria-expanded", "true");
+      chatWindow.setAttribute("aria-hidden", "false");
+      if(scrollTopBtn){ scrollTopBtn.classList.add("is-chat-open"); }
+      setTimeout(function(){ input.focus(); }, 300);
+    }
+
+    function closeChat(){
+      chatWindow.classList.remove("is-open");
+      launcher.classList.remove("is-open");
+      launcher.setAttribute("aria-expanded", "false");
+      chatWindow.setAttribute("aria-hidden", "true");
+      if(scrollTopBtn){ scrollTopBtn.classList.remove("is-chat-open"); }
+    }
+
+    launcher.addEventListener("click", function(){
+      if(chatWindow.classList.contains("is-open")){ closeChat(); } else { openChat(); }
+    });
+    closeBtn.addEventListener("click", closeChat);
+    clearBtn.addEventListener("click", function(){
+      resetChat();
+      if(typeof showToast === "function"){ showToast({type:"info", title:"Chat cleared", message:"Starting a fresh conversation."}); }
+    });
+
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Escape" && chatWindow.classList.contains("is-open")){ closeChat(); }
+    });
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var val = input.value.trim();
+      if(!val){ return; }
+      addMessage("user", val);
+      input.value = "";
+      botReply(val);
+    });
+
+    resetChat();
+  })();
 
 })();
 </script>

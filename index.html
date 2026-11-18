@@ -34,6 +34,11 @@
     --space-lg:40px;
     --space-xl:64px;
     --space-2xl:88px;
+    --ease-standard:cubic-bezier(.22,.61,.36,1);
+    --ease-out-soft:cubic-bezier(.16,.84,.44,1);
+    --dur-fast:.18s;
+    --dur-base:.3s;
+    --dur-slow:.55s;
   }
   *,*::before,*::after{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -44,6 +49,65 @@
     font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     line-height:1.6;
     -webkit-font-smoothing:antialiased;
+  }
+
+  /* ===== Motion system ===== */
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(18px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+  }
+  @keyframes scaleIn{
+    from{opacity:0; transform:scale(.96);}
+    to{opacity:1; transform:scale(1);}
+  }
+  @keyframes modalRise{
+    from{opacity:0; transform:translateY(24px) scale(.98);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  @keyframes shimmerSweep{
+    0%{transform:translateX(-120%);}
+    100%{transform:translateX(220%);}
+  }
+  @keyframes gentleFloatIn{
+    from{opacity:0; transform:translateY(26px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(22px);
+    transition:opacity var(--dur-slow) var(--ease-out-soft), transform var(--dur-slow) var(--ease-out-soft);
+    will-change:opacity, transform;
+  }
+  .reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .reveal-stagger > *{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity var(--dur-base) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+  }
+  .reveal-stagger.is-visible > *{opacity:1; transform:translateY(0);}
+  .reveal-stagger.is-visible > *:nth-child(1){transition-delay:.03s;}
+  .reveal-stagger.is-visible > *:nth-child(2){transition-delay:.09s;}
+  .reveal-stagger.is-visible > *:nth-child(3){transition-delay:.15s;}
+  .reveal-stagger.is-visible > *:nth-child(4){transition-delay:.21s;}
+  .reveal-stagger.is-visible > *:nth-child(5){transition-delay:.27s;}
+  .reveal-stagger.is-visible > *:nth-child(6){transition-delay:.33s;}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+    .reveal, .reveal-stagger > *{opacity:1 !important; transform:none !important;}
   }
   h1,h2,h3,h4{
     font-family:'Oswald',system-ui,-apple-system,sans-serif;
@@ -64,59 +128,83 @@
 
   /* Buttons */
   .btn{
+    position:relative;
     display:inline-flex;align-items:center;justify-content:center;gap:9px;
     font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;
     height:50px;padding:0 26px;border-radius:var(--radius-sm);
     border:2px solid transparent;cursor:pointer;text-decoration:none;
-    transition:background-color .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+    transition:background-color var(--dur-fast) var(--ease-standard),
+               color var(--dur-fast) var(--ease-standard),
+               border-color var(--dur-fast) var(--ease-standard),
+               transform var(--dur-fast) var(--ease-standard),
+               box-shadow var(--dur-fast) var(--ease-standard);
     white-space:nowrap;line-height:1;
+    overflow:hidden;
   }
-  .btn:active{transform:translateY(1px);}
+  .btn:active{transform:translateY(1px) scale(.985);}
+  .btn:focus-visible{transform:translateY(-1px);}
   .btn-saffron{background:var(--saffron);color:var(--navy-deep);border-color:var(--saffron);}
-  .btn-saffron:hover{background:var(--saffron-dark);border-color:var(--saffron-dark);}
+  .btn-saffron:hover{background:var(--saffron-dark);border-color:var(--saffron-dark);transform:translateY(-2px);box-shadow:0 8px 18px -8px rgba(224,118,0,.55);}
   .btn-outline-navy{background:transparent;color:var(--navy);border-color:var(--navy);}
-  .btn-outline-navy:hover{background:var(--navy);color:var(--white);}
+  .btn-outline-navy:hover{background:var(--navy);color:var(--white);transform:translateY(-2px);}
   .btn-outline-white{background:transparent;color:var(--white);border-color:var(--white);}
-  .btn-outline-white:hover{background:var(--white);color:var(--navy-deep);}
+  .btn-outline-white:hover{background:var(--white);color:var(--navy-deep);transform:translateY(-2px);}
   .btn-whatsapp{background:#25D366;color:#063B21;border-color:#25D366;}
-  .btn-whatsapp:hover{background:#1DB955;border-color:#1DB955;}
+  .btn-whatsapp:hover{background:#1DB955;border-color:#1DB955;transform:translateY(-2px);box-shadow:0 8px 18px -8px rgba(29,185,85,.5);}
   .btn-block{width:100%;}
   .btn-sm{height:42px;padding:0 18px;font-size:.85rem;}
+  @media (prefers-reduced-motion: reduce){
+    .btn-saffron:hover, .btn-outline-navy:hover, .btn-outline-white:hover, .btn-whatsapp:hover{transform:none;}
+  }
 
   /* Header */
   header.site-header{
     position:sticky;top:0;z-index:50;
     background:var(--cream);
     border-bottom:1px solid var(--line);
+    transition:box-shadow var(--dur-base) var(--ease-standard);
   }
+  header.site-header.is-scrolled{box-shadow:0 6px 20px -14px rgba(16,39,71,.35);}
   .header-inner{
     display:flex;align-items:center;justify-content:space-between;
     height:84px;gap:20px;
   }
   .brand{display:flex;align-items:center;gap:13px;text-decoration:none;}
-  .brand img{height:58px;width:58px;object-fit:contain;flex:none;}
+  .brand img{height:58px;width:58px;object-fit:contain;flex:none;transition:transform var(--dur-fast) var(--ease-standard);}
+  .brand:hover img{transform:scale(1.05) rotate(-2deg);}
   .brand-text{font-family:'Oswald',sans-serif;line-height:1.15;}
   .brand-text strong{display:block;font-size:1.08rem;color:var(--navy);font-weight:700;letter-spacing:.3px;}
   .brand-text span{display:block;font-size:.68rem;color:var(--saffron-dark);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;}
   nav.main-nav{display:flex;align-items:center;gap:36px;}
   nav.main-nav a{
+    position:relative;
     font-size:.92rem;font-weight:600;text-decoration:none;color:var(--charcoal);
     padding:8px 2px;border-bottom:2px solid transparent;
+    transition:color var(--dur-fast) var(--ease-standard);
   }
-  nav.main-nav a:hover{color:var(--navy);border-bottom-color:var(--saffron);}
+  nav.main-nav a::after{
+    content:"";position:absolute;left:0;right:100%;bottom:-2px;height:2px;background:var(--saffron);
+    transition:right var(--dur-base) var(--ease-out-soft);
+  }
+  nav.main-nav a:hover{color:var(--navy);}
+  nav.main-nav a:hover::after{right:0;}
   .header-actions{display:flex;align-items:center;gap:16px;}
   .nav-toggle{
     display:none;background:none;border:2px solid var(--navy);border-radius:var(--radius-sm);
     width:46px;height:46px;align-items:center;justify-content:center;font-size:1.1rem;color:var(--navy);cursor:pointer;
+    transition:background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
   }
+  .nav-toggle:hover{background:var(--navy);color:var(--white);}
+  .nav-toggle:active{transform:scale(.92);}
   @media (max-width:980px){
     nav.main-nav{
       position:fixed;top:84px;left:0;right:0;bottom:0;background:var(--cream);
       flex-direction:column;align-items:flex-start;gap:0;padding:16px 28px 32px;
-      transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;
+      transform:translateX(100%);transition:transform var(--dur-base) var(--ease-out-soft);overflow-y:auto;
     }
     nav.main-nav.open{transform:translateX(0);}
     nav.main-nav a{width:100%;padding:16px 0;border-bottom:1px solid var(--line);}
+    nav.main-nav a::after{display:none;}
     nav.main-nav .nav-whatsapp-mobile{display:block;margin-top:20px;}
     .header-actions .desktop-whatsapp{display:none;}
     .nav-toggle{display:inline-flex;}
@@ -127,34 +215,86 @@
   }
 
   /* Hero */
-  .hero{background:var(--cream);border-bottom:1px solid var(--line);padding:var(--space-xl) 0 0;}
-  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;padding-bottom:var(--space-xl);}
+  .hero{background:var(--cream);border-bottom:1px solid var(--line);padding:var(--space-xl) 0 0;overflow:hidden;}
+  .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:72px;align-items:center;padding-bottom:var(--space-xl);}
+  .hero-copy{position:relative;}
   .hero-kicker{
-    display:inline-flex;align-items:center;gap:8px;color:var(--saffron-dark);
-    font-weight:700;font-size:.82rem;letter-spacing:.4px;margin-bottom:22px;
+    display:inline-flex;align-items:center;gap:10px;color:var(--saffron-dark);
+    font-weight:700;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;
+    opacity:0;animation:fadeUp var(--dur-slow) var(--ease-out-soft) .05s forwards;
   }
-  .hero h1{font-size:clamp(34px,4.6vw,54px);margin-bottom:22px;}
-  .hero p.lead{font-size:1.1rem;color:#3C434D;max-width:480px;margin-bottom:32px;}
-  .hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:40px;}
+  .hero-kicker::before{
+    content:"";display:inline-block;width:28px;height:2px;background:var(--saffron);
+  }
+  .hero h1{
+    font-size:clamp(34px,4.6vw,56px);margin-bottom:22px;letter-spacing:-.5px;
+    opacity:0;animation:fadeUp var(--dur-slow) var(--ease-out-soft) .14s forwards;
+  }
+  .hero p.lead{
+    font-size:1.1rem;color:#3C434D;max-width:470px;margin-bottom:32px;
+    opacity:0;animation:fadeUp var(--dur-slow) var(--ease-out-soft) .22s forwards;
+  }
+  .hero-ctas{
+    display:flex;gap:16px;flex-wrap:wrap;margin-bottom:40px;
+    opacity:0;animation:fadeUp var(--dur-slow) var(--ease-out-soft) .3s forwards;
+  }
   .trust-strip{
     display:flex;gap:30px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:26px;
+    opacity:0;animation:fadeUp var(--dur-slow) var(--ease-out-soft) .38s forwards;
   }
   .trust-item{display:flex;align-items:center;gap:10px;}
   .trust-item i{color:var(--saffron);font-size:1.2rem;}
   .trust-item span{font-size:.85rem;font-weight:600;color:var(--navy);}
-  .hero-media{position:relative;}
+
+  /* Automotive editorial media block: sharp corners, frame offset, corner ticks */
+  .hero-media{
+    position:relative;padding:18px 18px 18px 0;
+    opacity:0;animation:fadeIn var(--dur-slow) var(--ease-out-soft) .18s forwards;
+  }
+  .hero-media-frame{
+    position:relative;
+    border:1px solid var(--navy);
+    padding:10px;
+  }
+  .hero-media .hero-media-frame::before,
+  .hero-media .hero-media-frame::after{
+    content:"";position:absolute;width:22px;height:22px;border-color:var(--saffron);border-style:solid;
+  }
+  .hero-media .hero-media-frame::before{top:-1px;left:-1px;border-width:3px 0 0 3px;}
+  .hero-media .hero-media-frame::after{bottom:-1px;right:-1px;border-width:0 3px 3px 0;}
   .hero-media img{
-    width:100%;height:420px;object-fit:cover;border-radius:var(--radius-lg);
-    border:1px solid var(--line);
+    width:100%;height:440px;object-fit:cover;display:block;
+    border-radius:0;
+    filter:saturate(1.04) contrast(1.02);
+    transition:transform .6s var(--ease-out-soft);
+  }
+  .hero-media:hover img{transform:scale(1.015);}
+  .hero-media-tag{
+    position:absolute;top:0;left:-18px;background:var(--navy-deep);color:var(--white);
+    padding:9px 16px;font-size:.7rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+    writing-mode:vertical-rl;text-orientation:mixed;
   }
   .hero-media-caption{
-    position:absolute;left:20px;bottom:20px;background:var(--navy-deep);color:var(--white);
-    padding:11px 18px;border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;
-    letter-spacing:.3px;
+    position:absolute;left:18px;bottom:18px;background:var(--navy-deep);color:var(--white);
+    padding:13px 20px;font-size:.78rem;font-weight:600;
+    letter-spacing:.3px;border-left:3px solid var(--saffron);
+    box-shadow:0 10px 24px -12px rgba(10,25,48,.55);
+  }
+  .hero-media-spec{
+    position:absolute;right:0;bottom:-18px;background:var(--saffron);color:var(--navy-deep);
+    padding:10px 18px;font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
   }
   @media (max-width:980px){
-    .hero-grid{grid-template-columns:1fr;gap:36px;padding-bottom:var(--space-lg);}
+    .hero-grid{grid-template-columns:1fr;gap:40px;padding-bottom:var(--space-lg);}
+    .hero-media{padding:14px 0 30px;}
     .hero-media img{height:300px;}
+    .hero-media-tag{display:none;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hero-kicker, .hero h1, .hero p.lead, .hero-ctas, .trust-strip, .hero-media{
+      opacity:1; animation:none;
+    }
   }
 
   /* Search panel */
@@ -169,7 +309,9 @@
   .search-field select{
     width:100%;height:46px;padding:0 12px;border-radius:var(--radius-sm);border:1px solid #2A4A73;
     background:var(--white);color:var(--charcoal);font-family:'Inter',sans-serif;font-size:.88rem;
+    transition:border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
   }
+  .search-field select:hover{border-color:var(--saffron);}
   .search-field select:focus-visible{outline:3px solid var(--saffron);}
   .search-submit-row{margin-top:22px;}
   @media (max-width:980px){
@@ -188,7 +330,9 @@
   .sort-field select{
     height:42px;padding:0 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white);
     font-family:'Inter',sans-serif;font-size:.85rem;color:var(--charcoal);
+    transition:border-color var(--dur-fast) var(--ease-standard);
   }
+  .sort-field select:hover{border-color:var(--saffron-dark);}
   .result-count{font-size:.88rem;color:#596069;}
   .car-grid{
     display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
@@ -199,9 +343,16 @@
   .car-card{
     background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);
     overflow:hidden;display:flex;flex-direction:column;
+    transition:transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-base) var(--ease-standard);
   }
-  .car-card .car-img-wrap{position:relative;}
-  .car-card img{width:100%;height:190px;object-fit:cover;}
+  .car-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 20px 34px -22px rgba(16,39,71,.3);
+    border-color:#D8CBA0;
+  }
+  .car-card .car-img-wrap{position:relative;overflow:hidden;}
+  .car-card img{width:100%;height:190px;object-fit:cover;display:block;transition:transform .5s var(--ease-out-soft);}
+  .car-card:hover img{transform:scale(1.07);}
   .status-badge{
     position:absolute;top:14px;left:14px;background:var(--navy-deep);color:var(--white);
     font-size:.68rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
@@ -221,6 +372,10 @@
   .car-price span{font-size:.75rem;color:#8A8F95;font-weight:500;display:block;font-family:'Inter',sans-serif;margin-top:3px;}
   .car-actions{display:flex;gap:10px;margin-top:auto;}
   .car-actions .btn{flex:1;height:44px;padding:0 10px;font-size:.82rem;}
+  @media (prefers-reduced-motion: reduce){
+    .car-card:hover{transform:none;}
+    .car-card:hover img{transform:none;}
+  }
 
   .empty-state{
     text-align:center;padding:72px 24px;border:1px dashed var(--line);border-radius:var(--radius-md);
@@ -261,24 +416,36 @@
   .why-card{
     background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);
     padding:28px 22px;text-align:left;
+    transition:transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-base) var(--ease-standard);
   }
-  .why-card i{color:var(--saffron-dark);font-size:1.5rem;margin-bottom:16px;display:block;}
+  .why-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 16px 28px -20px rgba(16,39,71,.28);
+    border-color:#D8CBA0;
+  }
+  .why-card i{color:var(--saffron-dark);font-size:1.5rem;margin-bottom:16px;display:block;transition:transform var(--dur-base) var(--ease-standard);}
+  .why-card:hover i{transform:translateY(-2px) scale(1.08);}
   .why-card h4{font-size:.98rem;margin-bottom:10px;}
   .why-card p{font-size:.85rem;color:#565D66;margin-bottom:0;}
   @media (max-width:980px){.why-grid{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:560px){.why-grid{grid-template-columns:1fr;}}
+  @media (prefers-reduced-motion: reduce){.why-card:hover{transform:none;} .why-card:hover i{transform:none;}}
 
   /* About */
   .about-section{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .about-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:60px;align-items:center;}
   .about-media{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  .about-media img{width:100%;height:170px;object-fit:cover;border-radius:var(--radius-md);border:1px solid var(--line);}
-  .about-media img:first-child{grid-column:1/3;height:230px;}
+  .about-media .about-img-wrap{overflow:hidden;border:1px solid var(--line);}
+  .about-media .about-img-wrap:first-child{grid-column:1/3;}
+  .about-media img{width:100%;height:170px;object-fit:cover;display:block;transition:transform .5s var(--ease-out-soft);}
+  .about-media .about-img-wrap:first-child img{height:230px;}
+  .about-media .about-img-wrap:hover img{transform:scale(1.06);}
   .about-copy p{color:#434A53;}
   .about-stats{display:flex;gap:36px;margin-top:28px;border-top:1px solid var(--line);padding-top:26px;}
   .about-stat strong{display:block;font-family:'Oswald',sans-serif;font-size:1.6rem;color:var(--navy);}
   .about-stat span{font-size:.78rem;color:#6A7178;font-weight:600;}
   @media (max-width:900px){.about-grid{grid-template-columns:1fr;gap:34px;}}
+  @media (prefers-reduced-motion: reduce){.about-media .about-img-wrap:hover img{transform:none;}}
 
   /* Testimonials */
   .testimonial-note{
@@ -289,7 +456,9 @@
   .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
   .testi-card{
     background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:28px;
+    transition:transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
   }
+  .testi-card:hover{transform:translateY(-4px);box-shadow:0 16px 28px -20px rgba(16,39,71,.26);}
   .testi-stars{color:var(--saffron);margin-bottom:16px;font-size:.85rem;}
   .testi-card p.quote{font-size:.92rem;color:#3C424B;margin-bottom:20px;font-style:italic;}
   .testi-person{display:flex;align-items:center;gap:13px;}
@@ -300,6 +469,7 @@
   .testi-person strong{display:block;font-size:.88rem;color:var(--navy);}
   .testi-person span{font-size:.76rem;color:#767C84;}
   @media (max-width:980px){.testi-grid{grid-template-columns:1fr;}}
+  @media (prefers-reduced-motion: reduce){.testi-card:hover{transform:none;}}
 
   /* FAQ */
   .faq-list{max-width:760px;}
@@ -309,10 +479,13 @@
     width:100%;text-align:left;background:none;border:none;cursor:pointer;
     display:flex;justify-content:space-between;align-items:center;gap:18px;
     padding:22px 4px;font-family:'Inter',sans-serif;font-weight:600;font-size:.98rem;color:var(--navy);
+    transition:color var(--dur-fast) var(--ease-standard);
   }
-  .faq-question i{color:var(--saffron-dark);transition:transform .2s ease;flex:none;}
+  .faq-question:hover{color:var(--saffron-dark);}
+  .faq-question i{color:var(--saffron-dark);transition:transform var(--dur-base) var(--ease-standard);flex:none;}
   .faq-item.open .faq-question i{transform:rotate(45deg);}
-  .faq-answer{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .faq-answer{max-height:0;overflow:hidden;transition:max-height var(--dur-base) var(--ease-standard), opacity var(--dur-base) var(--ease-standard);opacity:0;}
+  .faq-item.open .faq-answer{opacity:1;}
   .faq-answer p{padding:0 4px 24px;color:#4B525C;font-size:.9rem;max-width:680px;margin-bottom:0;}
 
   /* Contact */
@@ -381,22 +554,28 @@
   .modal-overlay{
     position:fixed;inset:0;background:rgba(10,25,48,.62);z-index:200;
     display:none;align-items:center;justify-content:center;padding:20px;
+    opacity:0;transition:opacity var(--dur-base) var(--ease-standard);
   }
-  .modal-overlay.open{display:flex;}
+  .modal-overlay.open{display:flex;opacity:1;}
   .vehicle-modal{
     background:var(--white);border-radius:var(--radius-lg);max-width:720px;width:100%;
     max-height:90vh;overflow-y:auto;border:1px solid var(--line);
-    animation:modalIn .18s ease;
+    animation:modalRise var(--dur-base) var(--ease-out-soft);
   }
-  @keyframes modalIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  .modal-head{position:relative;}
-  .modal-head img{width:100%;height:280px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+  .modal-head{position:relative;overflow:hidden;}
+  .modal-head img{width:100%;height:280px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0;transition:transform .6s var(--ease-out-soft);}
   .modal-close{
     position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:var(--radius-sm);
     background:var(--navy-deep);color:var(--white);border:none;cursor:pointer;font-size:1.05rem;
     display:flex;align-items:center;justify-content:center;
+    transition:background-color var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
   }
-  .modal-close:hover{background:var(--saffron-dark);}
+  .modal-close:hover{background:var(--saffron-dark);transform:rotate(90deg);}
+  @media (prefers-reduced-motion: reduce){
+    .modal-overlay{transition:none;}
+    .vehicle-modal{animation:none;}
+    .modal-close:hover{transform:none;}
+  }
   .modal-status{
     position:absolute;top:16px;left:16px;background:var(--navy-deep);color:var(--white);
     font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
@@ -488,7 +667,7 @@
   <section id="home" class="hero" style="padding-bottom:0;">
     <div class="wrap">
       <div class="hero-grid">
-        <div>
+        <div class="hero-copy">
           <div class="hero-kicker"><i class="fa-solid fa-car" aria-hidden="true"></i> Local Pre Owned Car Dealership</div>
           <h1>Find Your Next Car With Confidence.</h1>
           <p class="lead">Shiv Shankar Car Bazar helps you buy and sell quality pre owned vehicles with transparent pricing, honest vehicle information and straightforward paperwork support.</p>
@@ -503,9 +682,13 @@
           </div>
         </div>
         <div class="hero-media">
-          <img src="https://images.unsplash.com/photo-1600191762849-bf8fd13e9dc0?w=1200&q=80&auto=format&fit=crop"
-               alt="A well maintained premium sedan available at Shiv Shankar Car Bazar">
+          <div class="hero-media-tag">Featured</div>
+          <div class="hero-media-frame">
+            <img src="https://images.unsplash.com/photo-1600191762849-bf8fd13e9dc0?w=1200&q=80&auto=format&fit=crop"
+                 alt="A well maintained premium sedan available at Shiv Shankar Car Bazar" loading="eager">
+          </div>
           <div class="hero-media-caption">Featured Arrival. Premium Sedan</div>
+          <div class="hero-media-spec"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Inspected &amp; Verified</div>
         </div>
       </div>
     </div>
@@ -575,7 +758,7 @@
   <!-- INVENTORY -->
   <section id="inventory">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <h2>Explore Our Latest Arrivals</h2>
         <p>Every vehicle listed below is from our current stock. Use the filters and sorting to find a car that fits your budget and needs, then enquire directly on WhatsApp.</p>
       </div>
@@ -607,9 +790,9 @@
   <!-- SELL YOUR CAR -->
   <section id="sell" class="sell-section">
     <div class="wrap">
-      <div class="sell-grid">
+      <div class="sell-grid reveal">
         <div>
-          <div class="section-head" style="margin-bottom:32px;">
+          <div class="section-head reveal" style="margin-bottom:32px;">
             <h2>Get A Fair Price For Your Car Without The Hassle</h2>
             <p>Selling your car with us is straightforward. Share a few details, get an honest valuation, and complete the sale with proper paperwork support. No middlemen and no guesswork.</p>
           </div>
@@ -654,11 +837,11 @@
   <!-- WHY CHOOSE US -->
   <section>
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <h2>Why Choose Shiv Shankar Car Bazar</h2>
         <p>We focus on the fundamentals that matter when you are buying or selling a used car.</p>
       </div>
-      <div class="why-grid">
+      <div class="why-grid reveal-stagger">
         <div class="why-card">
           <i class="fa-solid fa-tags" aria-hidden="true"></i>
           <h4>Transparent Pricing</h4>
@@ -692,10 +875,10 @@
   <section id="about" class="about-section">
     <div class="wrap">
       <div class="about-grid">
-        <div class="about-media">
-          <img src="https://images.unsplash.com/photo-1565376901308-37344a4b06ea?w=1200&q=80&auto=format&fit=crop" alt="Vehicles on display at the Shiv Shankar Car Bazar lot">
-          <img src="https://images.unsplash.com/photo-1533239538464-b23ee39003da?w=800&q=80&auto=format&fit=crop" alt="A pre owned sedan ready for sale at our dealership">
-          <img src="https://images.unsplash.com/photo-1577911679126-cbe61945ddde?w=800&q=80&auto=format&fit=crop" alt="An SUV parked at the Shiv Shankar Car Bazar premises">
+        <div class="about-media reveal">
+          <div class="about-img-wrap"><img src="https://images.unsplash.com/photo-1565376901308-37344a4b06ea?w=1200&q=80&auto=format&fit=crop" alt="Vehicles on display at the Shiv Shankar Car Bazar lot" loading="lazy"></div>
+          <div class="about-img-wrap"><img src="https://images.unsplash.com/photo-1533239538464-b23ee39003da?w=800&q=80&auto=format&fit=crop" alt="A pre owned sedan ready for sale at our dealership" loading="lazy"></div>
+          <div class="about-img-wrap"><img src="https://images.unsplash.com/photo-1577911679126-cbe61945ddde?w=800&q=80&auto=format&fit=crop" alt="An SUV parked at the Shiv Shankar Car Bazar premises" loading="lazy"></div>
         </div>
         <div class="about-copy">
           <h2>A Local Name In Pre Owned Cars</h2>
@@ -713,7 +896,7 @@
   <!-- TESTIMONIALS -->
   <section>
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <h2>What Our Customers Say</h2>
         <p>Real feedback from people who have bought or sold a car with us.</p>
       </div>
@@ -721,7 +904,7 @@
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
         <span>Sample content shown below for layout purposes only. Please replace it with genuine customer reviews before publishing this site.</span>
       </div>
-      <div class="testi-grid">
+      <div class="testi-grid reveal-stagger">
         <div class="testi-card">
           <div class="testi-stars">★★★★★</div>
           <p class="quote">"Bought a sedan here last year. The price was fair and the paperwork was handled smoothly without any surprises."</p>
@@ -753,11 +936,11 @@
   <!-- FAQ -->
   <section>
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <h2>Frequently Asked Questions</h2>
         <p>Answers to common questions about buying and selling with us.</p>
       </div>
-      <div class="faq-list" id="faqList">
+      <div class="faq-list reveal-stagger" id="faqList">
         <div class="faq-item">
           <button class="faq-question" aria-expanded="false">
             <span>Do you inspect every car before listing it?</span>
@@ -810,11 +993,11 @@
   <!-- CONTACT -->
   <section id="contact" class="contact-section">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <h2>Get In Touch</h2>
         <p>Visit our lot, call us, or send a message on WhatsApp, whichever is easiest for you.</p>
       </div>
-      <div class="contact-grid">
+      <div class="contact-grid reveal">
         <div class="contact-list">
           <div class="contact-row">
             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
@@ -1373,6 +1556,35 @@
   setTimeout(function(){
     showToast({type:"info", title:"Welcome", message:"Browse available cars below or use the search panel to filter by brand and budget."});
   }, 600);
+
+  /* ============ SCROLL-TRIGGERED SECTION ENTRANCE ============ */
+  var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if("IntersectionObserver" in window && !prefersReducedMotion){
+    var revealObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:"0px 0px -60px 0px"});
+    document.querySelectorAll(".reveal, .reveal-stagger").forEach(function(el){
+      revealObserver.observe(el);
+    });
+  } else {
+    document.querySelectorAll(".reveal, .reveal-stagger").forEach(function(el){
+      el.classList.add("is-visible");
+    });
+  }
+
+  /* ============ STICKY HEADER SCROLL SHADOW ============ */
+  var siteHeader = document.querySelector("header.site-header");
+  function updateHeaderShadow(){
+    if(window.scrollY > 8){ siteHeader.classList.add("is-scrolled"); }
+    else { siteHeader.classList.remove("is-scrolled"); }
+  }
+  window.addEventListener("scroll", updateHeaderShadow, {passive:true});
+  updateHeaderShadow();
 
 })();
 </script>
